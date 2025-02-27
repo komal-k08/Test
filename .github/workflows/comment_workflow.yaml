@@ -18,7 +18,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: workflow-info
-          path: ./workflow-info/
+          path: ./workflow-info.json
 
       - name: Delete old comments and post new one
         uses: actions/github-script@v7
@@ -85,4 +85,3 @@ jobs:
               body: commentBody
             });
             console.log("Posted new comment with artifact links.");
-            

@@ -2,7 +2,7 @@ name: Upload Artifacts
 
 on:
   pull_request:
-  workflow_dispatch:  
+    branches: [ master ]  
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -18,21 +18,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create dummy files
+      - name: Create dummy files and metadata
         run: |
           echo "This is test file 1" > ./quick-test-1.txt
           echo "This is test file 2" > ./quick-test-2.txt
+          # Create a JSON file with PR number
+          echo "{\"pr_number\": ${{ github.event.pull_request.number || 'null' }}, \"ref\": \"${{ github.ref }}\"}" > workflow-info.json
 
       - name: Upload first artifact
         uses: actions/upload-artifact@v4
-        id: artifact1
         with:
           name: quick-test-1
           path: ./quick-test-1.txt
 
       - name: Upload second artifact
         uses: actions/upload-artifact@v4
-        id: artifact2
         with:
           name: quick-test-2
           path: ./quick-test-2.txt
+
+      - name: Upload workflow info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-info
+          path: ./workflow-info.json

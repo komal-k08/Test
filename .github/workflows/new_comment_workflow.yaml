@@ -83,7 +83,7 @@ jobs:
               issue_number: Number(prNumber),
             });
             const oldComments = comments.data.filter(comment => 
-              comment.body.startsWith("✅ Artifacts uploaded!")
+              comment.body.startsWith("🤖 Artifacts uploaded!")
             );
             for (const comment of oldComments) {
               await github.rest.issues.deleteComment({
@@ -95,7 +95,7 @@ jobs:
             }
 
             // Build comment body from artifact list
-            const commentBody = `✅ Artifacts uploaded!\n` + 
+            const commentBody = `🤖 Artifacts uploaded!\n` + 
               workflowInfo.artifacts.map(artifact => 
                 `- 📄 [Download ${artifact.name}](${artifact.url})`
               ).join('\n');

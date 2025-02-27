@@ -1,8 +1,6 @@
 name: Upload Artifacts
 
-on:
-  pull_request:
-    branches: [ master ]  
+on: [push, pull_request, workflow_dispatch]
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -26,19 +24,30 @@ jobs:
           echo "{\"pr_number\": ${{ github.event.pull_request.number || 'null' }}, \"ref\": \"${{ github.ref }}\"}" > workflow-info.json
 
       - name: Upload first artifact
+        id: artifact-1
         uses: actions/upload-artifact@v4
         with:
           name: quick-test-1
           path: ./quick-test-1.txt
 
       - name: Upload second artifact
+        id: artifact-2
         uses: actions/upload-artifact@v4
         with:
           name: quick-test-2
           path: ./quick-test-2.txt
 
       - name: Upload workflow info artifact
+        id: artifact-3
         uses: actions/upload-artifact@v4
         with:
           name: workflow-info
           path: ./workflow-info.json
+
+      - name: Print arch details
+        run:  |  
+          
+          echo 'Artifact ${{ steps.artifact-1.outputs.artifact-name }} URL is ${{ steps.artifact-1.outputs.artifact-url }}'
+          echo 'Artifact ${{ steps.artifact-1.outputs.artifact-id }} URL is ${{ steps.artifact-2.outputs.artifact-url }}'
+          echo 'Artifact URL is ${{ steps.artifact-3.outputs.artifact-url }}'
+

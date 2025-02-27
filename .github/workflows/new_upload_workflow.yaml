@@ -1,0 +1,67 @@
+name: Upload Artifacts Complex Json
+
+on:
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create dummy files
+        run: |
+          echo "This is test file 1" > ./quick-test-1.txt
+          echo "This is test file 2" > ./quick-test-2.txt
+
+      - name: Upload first artifact
+        id: upload1
+        uses: actions/upload-artifact@v4
+        with:
+          name: quick-test-1
+          path: ./quick-test-1.txt
+
+      - name: Upload second artifact
+        id: upload2
+        uses: actions/upload-artifact@v4
+        with:
+          name: quick-test-2
+          path: ./quick-test-2.txt
+
+      - name: Create and upload workflow info
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          ARTIFACT_NAME_1="${{ steps.upload1.outputs.artifact-name }}"
+          ARTIFACT_ID_1="${{ steps.upload1.outputs.artifact-id }}"
+          ARTIFACT_URL_1="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID_1"
+
+          ARTIFACT_NAME_2="${{ steps.upload2.outputs.artifact-name }}"
+          ARTIFACT_ID_2="${{ steps.upload2.outputs.artifact-id }}"
+          ARTIFACT_URL_2="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID_2"
+
+          cat <<EOF > workflow-info.json
+          {
+            "pr_number": ${{ github.event.pull_request.number || 'null' }},
+            "artifacts": [
+              { "name": "$ARTIFACT_NAME_1", "url": "$ARTIFACT_URL_1" },
+              { "name": "$ARTIFACT_NAME_2", "url": "$ARTIFACT_URL_2" }
+            ]
+          }
+          EOF
+
+      - name: Upload workflow info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-info
+          path: ./workflow-info.json

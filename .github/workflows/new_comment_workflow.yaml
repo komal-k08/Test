@@ -2,7 +2,7 @@ name: Comment Artifacts on PR using Github script
 
 on:
   workflow_run:
-    workflows: [ "Upload Artifacts" ]
+    workflows: [ "Upload Artifacts Complex Json" ]
     types: [ completed ]
 
 permissions:
@@ -40,6 +40,8 @@ jobs:
               console.log("workflow-info artifact not found.");
               process.exit(1);
             }
+
+            console.log("workflow-info Artifact Details:", JSON.stringify(matchArtifact, null, 2));
 
             // Download the artifact as a ZIP
             const download = await github.rest.actions.downloadArtifact({
